@@ -4,7 +4,7 @@ import { getToken } from '@/utils/localstorage'
 
 router.beforeEach(async (to, from, next) => {
     const token = getToken()
-    const nick = store.state.user.userInfo.nick
+    const nick = store.state.user.userInfo?.nick || null    
     if (token) {
         //已登陆
         //已经登陆了就不能去登录和注册页面
@@ -15,7 +15,7 @@ router.beforeEach(async (to, from, next) => {
                 //查看有没有用户信息
                 next()
             } else {
-                try {
+                try {                    
                     //只要有token调用这个方法就可以获取用户信息
                     await store.dispatch('getUserInfo')
                     next()

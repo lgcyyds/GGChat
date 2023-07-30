@@ -1,6 +1,7 @@
 import { getToken, delToken } from '@/utils/localstorage'
 import { reqUserInfo } from '@/api/index'
-import { Notify } from 'vant'
+import { Notify, Toast } from 'vant'
+import router from '@/router'
 const state = {
     userInfo: {},
     token: getToken()
@@ -19,7 +20,9 @@ const mutations = {
     },
         //登录
     SOCKET_login(state, data) {
-        Notify({ type: 'success', message: `${state.userInfo.nick}已上线` })
+        if (state.userInfo.nick){
+            Notify({ type: 'success', message: `${state.userInfo.nick}已上线` })
+        }
 
     }
 }
@@ -28,7 +31,17 @@ const actions = {
     async getUserInfo({ commit }) {
         const result = await reqUserInfo()
         if (result.status == 200) {
-            commit('GETUSERINFO', result.data)
+            if(result.data){
+                commit('GETUSERINFO', result.data)
+            }else{
+                Toast({
+                    message:'账号异常，请重新登录',
+                    onClose:()=>{
+                        delToken()
+                        router.replace('/login')
+                    }
+                })
+            }
         }
     }
 }
