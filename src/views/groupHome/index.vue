@@ -85,6 +85,7 @@ export default {
       groupMember: [],
       GroupOwner: "",
       groupState: null,
+      isThrottled : false//初始状态关闭节流
     };
   },
   methods: {
@@ -159,6 +160,7 @@ export default {
         let result = await this.$API.reqGetGroupHome(Ids);
         let result2 = await this.$API.reqGetGroupUserList({ groupId });
         if (result.status == 200 && result2.status == 200) {
+          this.isThrottled = false//关闭申请加入的节流
           this.groupInfo = result.data;
           this.groupState = result.state;
           this.GroupOwner = result.data.userId; //判断群主
@@ -181,6 +183,10 @@ export default {
         this.$router.push(route);
       } else if (this.groupState == 2) {
         //未加入就显示申请加入
+        if(this.isThrottled){
+          return
+        }
+        this.isThrottled =true//开启节流（在获取页面信息中关闭节流）
         let groupId = this.$route.query._id;
         let Ids = {
           groupId,

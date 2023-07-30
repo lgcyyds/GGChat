@@ -40,6 +40,7 @@ import NavTop from "@/components/NavTop/index.vue";
 import BackBtn from "@/components/BackBtn/index.vue";
 import { mapState } from "vuex";
 import { Toast } from "vant";
+import _ from "lodash";
 export default {
   components: {
     NavTop,
@@ -76,14 +77,14 @@ export default {
       }
     },
     //同意群或者好友申请
-    async handleAgree(userId, groupId) {
+    handleAgree: _.throttle(async function(userId, groupId){
       if (this.$route.params.type == "群通知") {
         let Ids = { userId, groupId };
         const result = await this.$API.reqAgreeGroupApply(Ids);
         if (result.status == 200) {
           this.getGroupAgreeApply();
           Toast("已同意");
-          this.$store.commit('updateGroupNoticeNum')
+          this.$store.commit("updateGroupNoticeNum");
         }
       } else {
         let Ids = { userId: this.userId, friendId: userId };
@@ -91,10 +92,10 @@ export default {
         if (result.status == 200) {
           this.getFriendAgreeApply();
           Toast("已同意");
-          this.$store.commit('updateFriendNoticeNum')
+          this.$store.commit("updateFriendNoticeNum");
         }
       }
-    },
+    }, 2000),
   },
   mounted() {
     if (this.$route.params.type == "群通知") {

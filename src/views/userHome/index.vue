@@ -82,6 +82,7 @@ export default {
       userHomeInfo: {},
       friendState: null,
       showPopup: false,
+      isThrottled : false//初始状态关闭节流
     };
   },
   methods: {
@@ -92,6 +93,7 @@ export default {
       let Ids = { _id, urlId };
       const result = await this.$API.reqGetUserHome(Ids);
       if (result.status == 200) {
+        this.isThrottled = false//获取主页信息后关闭节流
         const { sex, birthday, start, age, nick, imgUrl, phone, sign, GGCode } =
           result.data.user;
         const { friendState } = result.data;
@@ -166,6 +168,12 @@ export default {
         };
         this.$router.push(route);
       } else {
+        //如果申请还没发出，被节流
+        if(this.isThrottled){
+          return
+        }
+        // 开启节流（在获取到页面信息后关闭节流）
+        this.isThrottled = true
         //加好友
         let friendId = this.$route.query._id;
         let Ids = {
@@ -179,8 +187,10 @@ export default {
             this.getUserhome();
             // 触发socket
             this.$socket.emit("apply_notice", friendId);
+            
           }
         } catch (error) {
+          this.isThrottled = false
           Toast(result.msg);
         }
       }
