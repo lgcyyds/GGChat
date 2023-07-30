@@ -151,7 +151,7 @@ main {
   }
   .space-list {
     width: 100%;
-    background-color: #f6f6f6;
+    background-color: #fff;
     position: absolute;
     top: 6rem;
     left: 0;

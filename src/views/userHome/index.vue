@@ -230,13 +230,13 @@ export default {
 }
 .content {
   width: 100%;
-  height: 12.6667rem;
+  height: 14.6667rem;
   background-color: #fff;
   padding: 0.4rem;
   box-sizing: border-box;
   position: absolute;
   left: 0;
-  top: 4.4rem;
+  bottom: 0;
   border-radius: 0.5333rem 0.5333rem 0 0;
 
   .top {

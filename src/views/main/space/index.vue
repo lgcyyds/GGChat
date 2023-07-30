@@ -51,8 +51,8 @@ export default {
     //下拉刷新
     onRefresh() {
       setTimeout(() => {
+         this.getSpaceList()
         this.isLoading = false;
-        this.count++;
       }, 1000);
     },
     // 回到顶部按钮

@@ -72,8 +72,8 @@ export default {
   methods: {
     onRefresh() {
       setTimeout(() => {
+        this.getMessageList();
         this.isLoading = false;
-        this.count++;
       }, 1000);
     },
     //获取消息列表
