@@ -9,12 +9,12 @@
       <SearchInput />
       <div class="new-user" @click="goAgreeApply('新朋友')">
         新朋友
-        <div class="dots" v-show="friendNum">{{ friendNum }}</div>
+        <div class="dots" v-show="friendNum > 0">{{ friendNum }}</div>
         <van-icon name="arrow" />
       </div>
       <div class="new-user" @click="goAgreeApply('群通知')">
         群通知
-        <div class="dots" v-show="groupNum">{{ groupNum }}</div>
+        <div class="dots" v-show="groupNum > 0">{{ groupNum }}</div>
         <van-icon name="arrow" />
       </div>
       <!-- 好友/群聊界面切换 -->
@@ -106,10 +106,10 @@ export default {
   },
   computed: {
     ...mapState({ userId: (state) => state.user.userInfo._id }),
-    ...mapGetters(['friendNum','groupNum'])
+    ...mapGetters(["friendNum", "groupNum"]),
   },
   mounted() {
-    this.getFriendList();    
+    this.getFriendList();
   },
 };
 </script>
