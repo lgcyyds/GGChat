@@ -1,7 +1,7 @@
 export const state = {
     friendNoticeNum: 0,
     groupNoticeNum: 0,
-    unReadNum:0
+    unReadNum: 0
 }
 export const mutations = {
     //登录的时候就要查一次申请信息
@@ -16,13 +16,14 @@ export const mutations = {
     },
     // 更改数量
     updateFriendNoticeNum(state) {
-        state.friendNoticeNum = state.friendNoticeNum - 1
+        //此处为防止节流不当造成多次更改至负数
+        state.friendNoticeNum = state.friendNoticeNum == 0 ? 0 : state.friendNoticeNum - 1
     },
     updateGroupNoticeNum(state) {
-        state.groupNoticeNum = state.groupNoticeNum - 1
+        state.groupNoticeNum = state.groupNoticeNum == 0 ? 0 : state.groupNoticeNum - 1
     },
     //tabber底部未读消息数
-    setUnReadNum(state,num){
+    setUnReadNum(state, num) {
         state.unReadNum = num
     }
 
