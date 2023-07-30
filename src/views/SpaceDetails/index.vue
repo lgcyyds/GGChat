@@ -26,7 +26,7 @@
       </div>
       <!-- 空间动态列表 -->
       <div class="space-list">
-        <SpaceList :SpaceList="SpaceList"></SpaceList>
+        <SpaceList :SpaceList="SpaceList" ref="spaceList"></SpaceList>
       </div>
     </main>
   </div>
@@ -36,6 +36,7 @@
 import NavTop from "@/components/NavTop/index.vue";
 import BackBtn from "@/components/BackBtn/index.vue";
 import SpaceList from "@/components/SpaceList/index.vue";
+import { watch } from "vue";
 export default {
   components: {
     NavTop,
@@ -80,6 +81,27 @@ export default {
   },
   beforeDestroy() {
     window.removeEventListener("scroll", this.changeOpacity, true);
+    window.removeEventListener(
+      "scroll",
+      this.$refs.spaceList.imgLazyLoading,
+      true
+    );
+  },
+  watch: {
+    SpaceList() {
+      this.$nextTick(() => {
+        //图片懒加载
+        window.addEventListener(
+          "scroll",
+          this.$refs.spaceList.imgLazyLoading,
+          true
+        );
+        //前三条动态不需要懒加载
+        this.$nextTick(() => {
+          this.$refs.spaceList.noLazyLoading();
+        });
+      });
+    },
   },
 };
 </script>

@@ -29,12 +29,14 @@
           <!-- 这里用li背景来做照片墙 -->
           <li
             class="img-content"
-            v-for="(photo, index) in item.photos"
-            :key="index"
-            @click="showAllPic(item.photos, index)"
-            :style="`background-image: url(${$baseUrl + photo})`"
+            :class="index > 2 ? 'lazy' : ''"
+            v-for="(photo, indexPic) in item.photos"
+            :key="indexPic"
+            @click="showAllPic(item.photos, indexPic)"
+            :data-bg-url="`${$baseUrl + photo}`"
           ></li>
         </ul>
+        <!-- :style="`background-image: url(${$baseUrl + photo})`" -->
       </li>
     </ul>
     <!-- 暂无数据 -->
@@ -47,7 +49,7 @@
 
 <script>
 import { ImagePreview, Dialog, Toast } from "vant";
-
+import _ from "lodash";
 export default {
   props: ["SpaceList"],
   methods: {
@@ -95,6 +97,27 @@ export default {
         },
       };
       this.$router.push(route);
+    },
+    //懒加载，只有到可视窗口才发送图片请求
+    imgLazyLoading: _.throttle(() => {
+      // 检查所有需要懒加载的 li 元素
+      var lazyLiElements = document.querySelectorAll(".lazy");
+
+      lazyLiElements.forEach(function (lazyLi) {
+        // 判断 li 元素是否在视野内
+        if (lazyLi.getBoundingClientRect().top < window.innerHeight) {
+          // 加载背景图片
+          lazyLi.style.backgroundImage = "url(" + lazyLi.dataset.bgUrl + ")";
+          lazyLi.classList.remove("lazy");
+        }
+      });            
+    }, 400),
+    //前三条动态不需要懒加载
+    noLazyLoading() {
+      let li = document.querySelectorAll(".img-content");
+      for (let i = 0; i <= 2; i++) {
+        li[i].style.backgroundImage = "url(" + li[i].dataset.bgUrl + ")";
+      }
     },
   },
 };
