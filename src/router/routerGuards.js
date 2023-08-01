@@ -8,9 +8,9 @@ router.beforeEach(async (to, from, next) => {
     if (token) {
         //已登陆
         //已经登陆了就不能去登录和注册页面
-        if (to.path == '/login' || to.path == '/register') {
+        if (to.path == '/login' || to.path == '/register') {            
             next('/')
-        } else {
+        } else {            
             if (nick) {
                 //查看有没有用户信息
                 next()
@@ -28,7 +28,7 @@ router.beforeEach(async (to, from, next) => {
         }
     } else {
         //未登录
-        if (to.path == '/login') {
+        if (to.path == '/login' || to.path == '/register') {
             next()
         } else {
             next('/login')

@@ -17,7 +17,7 @@
           class="input-field"
         />
         <button class="login-button" @click="Login">登录</button>
-        <h5 class="register">还没有账号？请<a href="#/Register">注册</a></h5>
+        <h5 class="register">还没有账号？请<router-link to="/register">注册</router-link></h5>
       </form>
     </div>
   </div>

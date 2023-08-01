@@ -18,7 +18,7 @@ Vue.config.productionTip = false
 Vue.prototype.$baseUrl = baseURL
 
 const SOCKETIO = new VueSocketIO({
-  debug: true,
+  debug: false,
   connection: SocketIO(socketUrl),
   vuex: {
     store,
@@ -33,10 +33,10 @@ Vue.use(SOCKETIO)
 
 //如果token存在，那就不会有登录操作，就不能在登陆的时候连接socket
 let token = localStorage.getItem('TOKEN')
-if(token){
+if (token) {
   SOCKETIO.io.connect()
   setTimeout(() => {
-    SOCKETIO.io.emit('login',store.state.user.userInfo._id)
+    SOCKETIO.io.emit('login', store.state.user.userInfo._id)
   }, 100);
 }
 
