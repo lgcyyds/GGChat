@@ -305,6 +305,7 @@ export default {
         this.sendGroupChat(dataMsg);
       }
       this.value = "";
+      this.emojiShow = false; //发送后关闭表情框
     },
     //发送私聊信息
     sendPrivateChat(dataMsg) {
@@ -323,6 +324,12 @@ export default {
         this.userId,
         this.$route.query.id
       );
+    },
+    //回车键发送消息
+    enterSendMsg(e) {
+      if (e.keyCode == 13) {
+        this.sendMsg();
+      }
     },
   },
   computed: {
@@ -353,6 +360,12 @@ export default {
         }
       });
     },
+  },
+  created() {
+    window.addEventListener("keydown", this.enterSendMsg, true);
+  },
+  beforeDestroy() {
+    window.removeEventListener("keydown", this.enterSendMsg, true);
   },
 };
 </script>
