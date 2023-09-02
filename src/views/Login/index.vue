@@ -16,9 +16,11 @@
           placeholder="请输入密码"
           class="input-field"
         />
-        <button class="login-button" @click="Login">登录</button>
-        <h5 class="register">还没有账号？请<router-link to="/register">注册</router-link></h5>
       </form>
+      <button class="login-button" @click="Login">登录</button>
+      <h5 class="register">
+        还没有账号？请<router-link to="/register">注册</router-link>
+      </h5>
     </div>
   </div>
 </template>
@@ -38,6 +40,8 @@ export default {
   },
   methods: {
     async Login() {
+      // 登录了
+      console.log("登陆了");
       const { phone, password } = this;
       if (!phone || !password) {
         Toast("用户名或密码不能为空");
@@ -52,16 +56,16 @@ export default {
       });
       const result = await this.$API.reqLogin(userInfo);
       if (result.status == 200) {
-        setToken(result.data.token)
+        setToken(result.data.token);
         ToastLoading.close();
-        this.$store.commit('setUserInfo',result.data)
-        Toast(result.msg)
+        this.$store.commit("setUserInfo", result.data);
+        Toast(result.msg);
         //连接socket
-        this.$socket.connect()
-        this.$socket.emit('login',result.data._id)
-        this.$router.replace('/message')
-      }else{
-        Toast(result.msg)
+        this.$socket.connect();
+        this.$socket.emit("login", result.data._id);
+        this.$router.replace("/message");
+      } else {
+        Toast(result.msg);
       }
     },
   },
