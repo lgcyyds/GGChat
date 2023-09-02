@@ -2,7 +2,7 @@
   <div>
     <!-- 动态列表 -->
     <ul class="space-content" v-if="SpaceList.length">
-      <li v-for="(item, index) in SpaceList" :key="index">
+      <li v-for="(item, index) in SpaceList" :key="index" ref="spaceListItem">
         <!-- 用户信息 -->
         <div class="user-info">
           <!-- 用户头像 -->
@@ -110,14 +110,15 @@ export default {
           lazyLi.style.backgroundImage = "url(" + lazyLi.dataset.bgUrl + ")";
           lazyLi.classList.remove("lazy");
         }
-      });            
+      });
     }, 400),
-    //前三条动态不需要懒加载
+    //前三条动态的图片不需要懒加载
     noLazyLoading() {
-      let li = document.querySelectorAll(".img-content");
-      for (let i = 0; i <= 2; i++) {
-        li[i].style.backgroundImage = "url(" + li[i].dataset.bgUrl + ")";
-      }
+      this.$refs.spaceListItem.slice(0, 3).forEach((liElements) => {
+        liElements.querySelectorAll(".img-content").forEach((picLi) => {
+          picLi.style.backgroundImage = "url(" + picLi.dataset.bgUrl + ")";
+        });
+      });
     },
   },
 };
