@@ -13,6 +13,9 @@ import { baseURL, socketUrl } from './api/baseUrl'
 import 'lib-flexible'
 //vant按需导入
 import './plugins/vant'
+import localforage from "localforage";
+localforage.config({ driver: localforage.INDEXEDDB });
+Vue.prototype.$localforage = localforage;
 Vue.config.productionTip = false
 /* eslint-disable no-new */
 Vue.prototype.$baseUrl = baseURL

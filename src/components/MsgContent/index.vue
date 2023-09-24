@@ -317,7 +317,12 @@ export default {
         fromId: this.userId,
         toId: this.$route.query.id,
       };
-      this.dataList.push(dataMsg);
+      this.dataList.push(dataMsg);      
+      //每次发送消息后更新缓存，只缓存前15条记录
+      this.$localforage.setItem(
+        `dataList${this.userId + this.$route.query.id}`,
+        [this.dataList.slice(-15),this.$parent.nick]
+      );      
       if (this.chatType == "friendChat") {
         this.sendPrivateChat(dataMsg);
       } else {
@@ -359,9 +364,14 @@ export default {
     }),
   },
   watch: {
-    //发一条消息，界面向上移动
+    //收到一条消息，界面向上移动
     newMessage(value) {
       this.dataList.push(value.slice(-1)[0]);
+      //收到信息更新缓存，只要前15条记录
+      this.$localforage.setItem(
+        `dataList${this.userId + this.$route.query.id}`,
+        [this.dataList.slice(-15),this.$parent.nick]
+      );
     },
     //刷新后页面停留
     dataList() {

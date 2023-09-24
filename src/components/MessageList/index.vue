@@ -87,7 +87,7 @@ export default {
           if (i.unreadMsgCounts) {
             unreadNum += i.unreadMsgCounts;
           }
-        });        
+        });
         this.$store.commit("setUnReadNum", unreadNum);
         this.messageList = result.data;
       }
@@ -109,8 +109,9 @@ export default {
     this.getMessageList();
   },
   sockets: {
-    unread_message() {
+    unread_message(fId) {
       this.getMessageList();
+      this.$localforage.removeItem(`dataList${this.userId + fId}`);
     },
   },
 };

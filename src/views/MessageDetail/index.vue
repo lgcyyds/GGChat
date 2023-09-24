@@ -62,18 +62,35 @@ export default {
         friendId: this.$route.query.id,
         pageNum: pageNum,
       };
-      const result = await this.$API.reqGetPrivateList(Ids);
+      let IndexedDBDataList = await this.$localforage.getItem(
+        `dataList${this.userId + this.$route.query.id}`
+      );
+      //只获取前15条，也就是第一页的记录
+      if (IndexedDBDataList && pageNum == 1) {
+        this.dataList = IndexedDBDataList[0];
+        this.nick=IndexedDBDataList[1]
+        return;
+      }
+      let result = await this.$API.reqGetPrivateList(Ids);
       if (result.status == 200) {
         //格式化时间
         result.data.messageList.forEach(
           (item) => (item.time = formatDate(item.time))
         );
-        //消息条数小于10不能刷新
+        //消息条数小于等于14不能刷新
         if (result.data.messageList.length <= 14) {
           this.isDisabled = true;
         }
         this.nick = result.data.friendNick.nick;
         this.dataList = [...result.data.messageList, ...this.dataList];
+        //缓存到IndexedDB，只缓存第一页的记录
+        if (pageNum == 1) {
+          //因为请求结果才有nick，所有在获取缓存时没有请求就没有nick，只能在缓存保存nick
+          this.$localforage.setItem(
+            `dataList${this.userId + this.$route.query.id}`,
+            [this.dataList,this.nick]
+          );
+        }
       } else if (result.status == 201) {
         //没记录
         this.isDisabled = true; //没有记录不能刷新
@@ -92,6 +109,15 @@ export default {
         groupId: this.$route.query.id,
         pageNum: pageNum,
       };
+      let IndexedDBDataList = await this.$localforage.getItem(
+        `dataList${this.userId + this.$route.query.id}`
+      );
+      //只获取前15条，也就是第一页的记录
+      if (IndexedDBDataList && pageNum == 1) {
+        this.dataList = IndexedDBDataList[0];
+        this.nick = IndexedDBDataList[1]
+        return;
+      }
       const result = await this.$API.reqGetGroupList(Ids);
       if (result.status == 200) {
         //格式化时间
@@ -104,6 +130,13 @@ export default {
         }
         this.nick = result.data.groupNick.groupName;
         this.dataList = [...result.data.messageList, ...this.dataList];
+        //缓存到IndexedDB，只缓存第一页的记录
+        if (pageNum == 1) {
+          this.$localforage.setItem(
+            `dataList${this.userId + this.$route.query.id}`,
+            [this.dataList,this.nick]
+          );
+        }
       } else if (result.status == 201) {
         //没记录
         this.isDisabled = true; //没有记录不能刷新
@@ -131,7 +164,7 @@ export default {
   mounted() {
     if (this.$route.params.type == "friendChat") {
       this.getPrivateList();
-      this.changeRead()
+      this.changeRead();
     } else {
       this.getGroupList();
       //只有进入群聊才能知道有人在房间里发消息
