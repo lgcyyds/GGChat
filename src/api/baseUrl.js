@@ -1,3 +1,6 @@
-export const baseURL = 'http://127.0.0.1:7878'
-export const socketUrl = 'ws://127.0.0.1:24000'
-
+// export const baseURL = 'http://127.0.0.1:7878'
+// export const socketUrl = 'ws://127.0.0.1:24000'
+export const baseURL = 'http://192.168.31.156:7878'
+export const socketUrl = 'ws://192.168.31.156:24000'
+//  export const baseURL = 'http://8.130.51.75:7878'
+//  export const socketUrl = 'ws://8.130.51.75:24000'
