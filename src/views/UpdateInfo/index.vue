@@ -5,14 +5,14 @@
     </NavTop>
     <BackBtn></BackBtn>
     <div class="content">
-      <van-form @submit="onSubmit">
+      <van-form @submit="submitUpdate">
         <!-- 头像上传 -->
         <van-field name="uploader" label="头像">
           <template #input>
             <van-uploader
               v-model="updateInfo.fileList"
+              :before-read="handleBeforeUpload"
               :max-count="1"
-              :after-read="afterRead"
             />
           </template>
         </van-field>
@@ -83,11 +83,13 @@ import NavTop from "@/components/NavTop/index.vue";
 import BackBtn from "@/components/BackBtn/index.vue";
 import { mapState } from "vuex";
 import { Toast } from "vant";
+import { mixins } from "@/mixins/compressImage";
 export default {
   components: {
     NavTop,
     BackBtn,
   },
+  mixins: [mixins],
   data() {
     return {
       updateInfo: {
@@ -116,7 +118,7 @@ export default {
         birthday,
         sign,
         imgUrl: uploader.length ? this.userImgUrl : defaultImg,
-      };
+      };      
       try {
         let result = await this.$API.reqUpdateUserInfo(newUserInfo);
         if (result.status == 200) {
@@ -126,24 +128,29 @@ export default {
       } catch (error) {
         console.log(error);
       }
-      console.log(values);
     },
     //图片上传服务器后返回对应路径
-    async afterRead(file) {
-      file.status = "uploading";
-      file.message = "上传中...";
+    async upLoadPic(param, values) {
+      if(!param){
+        this.onSubmit(values);
+        return
+      }
+      param.status = "uploading";
+      param.message = "上传中...";
+      let file = new File([param], param.name, { type: "image/jpeg" });
       let form = new FormData();
-      form.append("img", file.file);
+      form.append("img", file);
       try {
         const result = await this.$API.reqUploadUserPic(form);
         if (result.status === 200) {
           this.userImgUrl = result.url;
-          file.status = "done";
-          file.message = "上传成功";
+          param.status = "done";
+          param.message = "上传成功";
+          this.onSubmit(values);
         }
       } catch (error) {
-        file.status = "failed";
-        file.message = "上传失败";
+        param.status = "failed";
+        param.message = "上传失败";
       }
     },
     onConfirm(time) {
@@ -178,6 +185,12 @@ export default {
       } catch (error) {
         console.log(error);
       }
+    },
+    //点击提交更新信息
+    submitUpdate(values) {
+      this.upLoadPic(this.updateInfo.fileList[0].file, values);
+      console.log(this.updateInfo.fileList);
+      
     },
   },
   computed: {

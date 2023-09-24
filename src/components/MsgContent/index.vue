@@ -99,6 +99,7 @@
           :max-count="9"
           accept="image/png, image/jpeg, image/jpg"
           :after-read="afterRead"
+          :before-read="handleBeforeUpload"
           @click-upload="emojiShow = false"
         >
           <img src="@/assets/icon/A1.png" alt="" />
@@ -116,7 +117,9 @@ import EmojiList from "@/components/EmojiList/index.vue";
 import { ImagePreview, Toast } from "vant";
 import { mapState } from "vuex";
 import { formatDate } from "@/utils/timeFormat";
+import { mixins } from "@/mixins/compressImage";
 export default {
+  mixins: [mixins],
   props: ["isDisabled", "dataList"],
   components: {
     EmojiList,
@@ -138,9 +141,12 @@ export default {
       if (this.chatType == "friendChat") {
         //私聊
         if (!file.length) {
+          let fileImg = new File([file.file], file.file.name, {
+            type: "image/jpeg",
+          });
           //单照片
           let form = new FormData();
-          form.append("img", file.file);
+          form.append("img", fileImg);
           let result = await this.$API.reqPrivateUploadPhoto(form);
           if (result.status == 200) {
             let dataMsg = {
@@ -162,9 +168,14 @@ export default {
           }
         } else {
           //多照片
+          let fileImgs = file.map((item) => {
+            return new File([item.file], item.file.name, {
+              type: "image/jpeg",
+            });
+          });
           let form = new FormData();
-          for (let f of file) {
-            form.append("imgs", f.file);
+          for (let f of fileImgs) {
+            form.append("imgs", f);
           }
           let result = await this.$API.reqPrivateUploadPhotos(form);
           if (result.status == 200) {
@@ -191,9 +202,12 @@ export default {
       } else {
         //群聊
         if (!file.length) {
+          let fileImg = new File([file.file], file.file.name, {
+            type: "image/jpeg",
+          });
           //单照片
           let form = new FormData();
-          form.append("img", file.file);
+          form.append("img", fileImg);
           let result = await this.$API.reqGroupUploadPhoto(form);
           if (result.status == 200) {
             let dataMsg = {
@@ -215,9 +229,14 @@ export default {
           }
         } else {
           //多照片
+          let fileImgs = file.map((item) => {
+            return new File([item.file], item.file.name, {
+              type: "image/jpeg",
+            });
+          });
           let form = new FormData();
-          for (let f of file) {
-            form.append("imgs", f.file);
+          for (let f of fileImgs) {
+            form.append("imgs", f);
           }
           let result = await this.$API.reqGroupUploadPhotos(form);
           if (result.status == 200) {

@@ -5,7 +5,7 @@
       <span @click="handleCancel">取消</span>
       <div>写动态</div>
       <button
-        @click="Publish"
+        @click="submitSpace"
         :disabled="disabled"
         :class="disabled ? 'isDisabled' : ''"
       >
@@ -36,7 +36,7 @@
               multiple
               :max-count="9"
               preview-size="2.7rem"
-              :after-read="afterRead"
+              :before-read="handleBeforeUpload"
               @delete="delPicture"
             />
           </template>
@@ -49,7 +49,9 @@
 <script>
 import { Toast } from "vant";
 import { mapState } from "vuex";
+import { mixins } from "@/mixins/compressImage";
 export default {
+  mixins: [mixins],
   data() {
     return {
       formInfo: {
@@ -89,52 +91,115 @@ export default {
         this.$emit("refreshList");
       }
     },
-    //上传图片后的回调
-    async afterRead(file) {
-      if (!file.length) {
+    //上传图片
+    async upLoadPic(param) {
+      if (param.length == 1) {
         //单照片
-        file.status = "uploading";
-        file.message = "上传中...";
+        let file = new File([param[0].file], param[0].file.name, {
+          type: "image/jpeg",
+        }); //Blob转file
+        param.status = "uploading";
+        param.message = "上传中...";
         let form = new FormData();
-        form.append("photo", file.file);
+        form.append("photo", file);
         let result = await this.$API.reqSpaceUploadPhoto(form);
         if (result.status == 200) {
           this.picList.push(result.url);
-          file.status = "done";
-          file.message = "上传成功";
+          param.status = "done";
+          param.message = "上传成功";
+          //上传图片后顺便提交全部信息
+          this.Publish();
         } else {
-          file.status = "failed";
-          file.message = "上传失败";
+          param.status = "failed";
+          param.message = "上传失败";
         }
       } else {
         //多照片
-        file.forEach((f) => {
+        let files = param.map((f) => {
           f.status = "uploading";
           f.message = "上传中...";
+          let file = new File([f.file], f.file.name, { type: "image/jpeg" }); //Blob转file
+          return file;
         });
         let form = new FormData();
-        for (let i of file) {
-          form.append("photos", i.file);
+        for (let i of files) {
+          form.append("photos", i);
         }
         let result = await this.$API.reqSpaceUploadPhotos(form);
         if (result.status == 200) {
-          file.forEach((f) => {
+          param.forEach((f) => {
             f.status = "done";
             f.message = "上传成功";
           });
           this.picList.push(...result.url);
+          //上传图片后顺便提交全部信息
+          this.Publish();
         } else {
-          file.forEach((f) => {
+          param.forEach((f) => {
             f.status = "failed";
             f.message = "上传失败";
           });
         }
       }
     },
+    //点击发布按钮
+    submitSpace() {
+      //点击发布后先上传图片，然后在上传的方法中发布动态
+      this.upLoadPic(this.formInfo.upLoaderImgList);
+    },
+
     //删除照片
     delPicture(file, detail) {
-      this.picList.splice(detail.index,1)
+      this.picList.splice(detail.index, 1);
     },
+    /*     //上传前压缩
+    handleBeforeUpload(file) {
+      // 在上传之前对图片进行压缩
+      let compressImages = []
+      return new Promise((resolve, reject) => {
+        if (!file.length) {
+          this.compressImage(file)
+            .then((compressedFile) => {
+              // 返回压缩后的文件
+              resolve(compressedFile);                            
+            })
+            .catch((error) => {
+              // 处理压缩错误
+              reject(error);
+              console.log(error);
+            });
+        } else {
+          compressImages = file.map((item) => this.compressImage(item));
+          Promise.all(compressImages).then((compressedFiles)=>{
+            resolve(compressedFiles)
+            console.log(compressedFiles);
+            
+          }).catch((error)=>{
+            reject(error)
+          })          
+        }
+      });
+    },
+    //压缩
+    compressImage(file) {
+      // 使用图片压缩库对图片进行压缩
+      return new Promise((resolve, reject) => {
+        const compressor = new ImageCompressor();
+
+        compressor
+          .compress(file, {
+            quality: 0.4, // 压缩质量，可以调整
+            maxWidth: 800, // 最大宽度，可以调整
+            maxHeight: 800, // 最大高度，可以调整
+          })
+          .then((compressedFile) => {
+            resolve(compressedFile);
+          })
+          .catch((error) => {
+            reject(error);
+          });
+      });
+    }, */
   },
 };
 </script>

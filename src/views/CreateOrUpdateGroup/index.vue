@@ -5,12 +5,12 @@
       <div class="navtop-title">{{ $route.params.type }}</div>
     </NavTop>
     <div class="content">
-      <van-form @submit="onSubmit">
+      <van-form @submit="submitGroupInfo">
         <!-- 头像 -->
         <van-field name="uploader" label="群头像">
           <template #input>
             <van-uploader
-              :after-read="afterRead"
+              :before-read="handleBeforeUpload"
               v-model="groupInfo.fileList"
               max-count="1"
             />
@@ -75,11 +75,13 @@ import BackBtn from "@/components/BackBtn/index.vue";
 import { Toast, Dialog } from "vant";
 import { mapState } from "vuex";
 import { reqDelFriend } from "@/api";
+import { mixins } from "@/mixins/compressImage";
 export default {
   components: {
     NavTop,
     BackBtn,
   },
+  mixins: [mixins],
   data() {
     return {
       groupInfo: {
@@ -93,25 +95,31 @@ export default {
   },
   methods: {
     //上传群头像
-    async afterRead(file) {
-      file.status = "uploading";
-      file.message = "上传中...";
+    async upLoadImg(param, values) {
+      if(!param){
+        this.onSubmit(values);
+        return
+      }
+      param.status = "uploading";
+      param.message = "上传中...";
+      let file = new File([param], param.name, { type: "image/jpeg" });
       let form = new FormData();
-      form.append("img", file.file);
+      form.append("img", file);
       try {
         let result = await this.$API.reqGroupPic(form);
         if (result.status == 200) {
-          file.status = "done";
-          file.message = "上传成功";
+          param.status = "done";
+          param.message = "上传成功";
           this.groupImgUrl = result.url;
           Toast("头像上传成功");
+          this.onSubmit(values);
         } else {
-          file.status = "failed";
-          file.message = "上传失败";
+          param.status = "failed";
+          param.message = "上传失败";
         }
       } catch (error) {
-        file.status = "failed";
-        file.message = "上传失败";
+        param.status = "failed";
+        param.message = "上传失败";
       }
     },
     async onSubmit(values) {
@@ -204,7 +212,11 @@ export default {
       }).catch(() => {});
     },
     //退出群聊
-    
+
+    //点击保存
+    submitGroupInfo(values) {
+      this.upLoadImg(this.groupInfo.fileList[0].file, values);      
+    },
   },
   computed: {
     ...mapState({ userId: (state) => state.user.userInfo._id }),
